@@ -248,14 +248,31 @@ where
         name,
         methods,
     };
+    #[cfg(feature = "transport")]
     let client = tonic_build::CodeGenBuilder::new()
         .compile_well_known_types(false)
         .emit_package(false)
         .generate_client(&service, "");
+    #[cfg(not(feature = "transport"))]
+    let client = tonic_build::CodeGenBuilder::new()
+        .build_transport(false)
+        .compile_well_known_types(false)
+        .emit_package(false)
+        .generate_client(&service, "");
+
+    #[cfg(feature = "transport")]
     let server = tonic_build::CodeGenBuilder::new()
         .compile_well_known_types(false)
         .emit_package(false)
         .generate_server(&service, "");
+    #[cfg(not(feature = "transport"))]
+    let server = tonic_build::CodeGenBuilder::new()
+        .build_transport(false)
+        .compile_well_known_types(false)
+        .emit_package(false)
+        .generate_server(&service, "");
+
+
     let types = service.methods.iter().map(|m| {
         let request_name = m.generated_request();
         let response_name = m.generated_response();
